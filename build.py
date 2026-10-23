@@ -198,6 +198,7 @@ def layout(meta, body, path):
 <meta property="og:image" content="{og_image}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="{url('/favicon.ico')}" sizes="any">
+<link rel="icon" href="{url('/favicon.svg')}" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="{url('/assets/img/favicon-32.png')}">
 <link rel="apple-touch-icon" href="{url('/assets/img/apple-touch-icon.png')}">
 <link rel="preload" href="{url('/assets/fonts/jost.woff2')}" as="font" type="font/woff2" crossorigin>
@@ -210,7 +211,7 @@ def layout(meta, body, path):
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="{url('/')}"><img src="{url('/assets/img/moreland-logo.png')}" alt="Moreland Associates" width="640" height="130"></a>
+    <a class="brand" href="{url('/')}"><img src="{url('/assets/img/moreland-logo.svg')}" alt="Moreland Associates" width="640" height="147"></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav class="site-nav" id="site-nav" aria-label="Main"><ul>{nav_html(path)}</ul></nav>
   </div>
