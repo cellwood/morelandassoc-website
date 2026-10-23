@@ -265,9 +265,86 @@ def sidebar_html(name, path):
 
 def render_tokens(body, path):
     body = body.replace("{{cta}}", CTA)
+    body = body.replace("{{milestones}}", milestones_svg())
     body = re.sub(r"\{\{form:([\w-]+)\}\}", lambda m: form_html(m.group(1)), body)
     body = re.sub(r"\{\{sidebar:([\w-]+)\}\}", lambda m: sidebar_html(m.group(1), path), body)
     return body.replace("{{base}}", BASE)
+
+
+# ---------- Market Traction milestones graphic ----------
+# Recreated from the original Moreland site (identity guide, Kim Leedy): six milestone tiles
+# climbing an S-curve. Inline SVG so labels use the site fonts and each tile links to its stage.
+# Icons are adapted from Feather (MIT) and Lucide (ISC), drawn on a 24-unit grid.
+
+ICONS = {
+    "eureka": '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/>',
+    "kaa-ching": '<circle cx="12" cy="12" r="10"/><path d="M15.5 8.5H11a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4H8.5M12 6v2.5M12 16.5V19"/>',
+    "two-thumbs-up": '<path d="M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+    "momentum": '<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>',
+    "building-buzz": '<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4M22 5h-4"/>',
+    "market-traction": '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+}
+# Tile centres on a 1000 x 600 canvas, following the original S-curve layout.
+TILE_POS = [(95, 478), (262, 462), (424, 372), (556, 252), (696, 150), (880, 100)]
+LABEL_LINES = {"two-thumbs-up": ["Two", "Thumbs Up"], "building-buzz": ["Building", "Buzz"], "market-traction": ["Market", "Traction"]}
+
+
+def _curve(points):
+    """Smooth path through points (Catmull-Rom converted to cubic Béziers)."""
+    p = [(-40, 505)] + points + [(1040, 70)]
+    d = f"M{p[0][0]},{p[0][1]}"
+    for i in range(len(p) - 1):
+        p0, p1, p2 = p[max(i - 1, 0)], p[i], p[i + 1]
+        p3 = p[min(i + 2, len(p) - 1)]
+        c1 = (p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6)
+        c2 = (p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6)
+        d += f" C{c1[0]:.0f},{c1[1]:.0f} {c2[0]:.0f},{c2[1]:.0f} {p2[0]},{p2[1]}"
+    return d
+
+
+def milestones_svg(active=None, link=True, uid="m"):
+    """The six-milestone road map. `active` = slug of the stage to highlight (earlier stages show as passed)."""
+    idx = next((i for i, s in enumerate(STAGES) if s["slug"] == active), None)
+    tiles = []
+    for i, (s, (x, y)) in enumerate(zip(STAGES, TILE_POS)):
+        state = "active" if i == idx else "passed" if idx is not None and i < idx else "ahead"
+        tile_fill, icon_col, ring = {
+            "active": ("#2c5b8c", "#ffffff", "#2c5b8c"),
+            "passed": ("#ffffff", "#2c5b8c", "#71a1d5"),
+            "ahead": ("#ffffff", "#2c5b8c", "#acc1e8"),
+        }[state]
+        badge = (f'<circle cx="{x - 46}" cy="{y - 46}" r="15" fill="#71a1d5"/>'
+                 f'<path d="M{x - 53} {y - 46}l5 5 9-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+                 if state == "passed" else
+                 f'<circle cx="{x - 46}" cy="{y - 46}" r="15" fill="{"#1d2226" if state == "active" else "#71a1d5"}"/>'
+                 f'<text x="{x - 46}" y="{y - 40}" text-anchor="middle" font-size="17" font-weight="600" fill="#fff">{i + 1}</text>')
+        lines = LABEL_LINES.get(s["slug"], [s["name"]])
+        label = "".join(f'<tspan x="{x}" dy="{0 if j == 0 else '1.1em'}">{esc(t)}</tspan>' for j, t in enumerate(lines))
+        weight = "600" if state == "active" else "500"
+        halo = f'<rect x="{x - 64}" y="{y - 64}" width="128" height="128" rx="16" fill="none" stroke="#2c5b8c" stroke-opacity=".25" stroke-width="6"/>' if state == "active" else ""
+        body = (f'{halo}<rect x="{x - 52}" y="{y - 52}" width="104" height="104" rx="10" fill="{tile_fill}" stroke="{ring}" stroke-width="3"/>'
+                f'<g transform="translate({x - 28} {y - 28}) scale(2.333)" fill="none" stroke="{icon_col}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{ICONS[s["slug"]]}</g>'
+                f'{badge}<text class="ms-label" x="{x}" y="{y + 90}" text-anchor="middle" font-size="22" font-weight="{weight}" fill="{"#1d2226" if state == "active" else "#2c5b8c"}">{label}</text>')
+        tip = f'<title>Stage {i + 1}: {esc(s["name"])}. {esc(s["headline"])}</title>'
+        if link:
+            href = url(f'/market-traction/stages/{s["slug"]}/')
+            cur = ' aria-current="step"' if state == "active" else ""
+            tiles.append(f'<a href="{href}" class="ms-tile"{cur}>{tip}{body}</a>')
+        else:
+            tiles.append(f'<g>{tip}{body}</g>')
+    names = ", ".join(s["name"] for s in STAGES)
+    summary = f"The road to market traction in six milestones: {names}."
+    if idx is not None:
+        summary += f" Stage {idx + 1}, {STAGES[idx]['name']}, is highlighted."
+    return (f'<svg class="milestones" viewBox="0 0 1000 600" role="group" aria-labelledby="{uid}-t" '
+            f'font-family="Jost, Futura, \'Century Gothic\', sans-serif">'
+            f'<title id="{uid}-t">{esc(summary)}</title>'
+            f'<rect width="1000" height="600" rx="14" fill="#dae4f5"/>'
+            f'<text class="ms-title" x="44" y="70" font-size="32" font-weight="500" fill="#2c5b8c">Moreland’s Market Traction Milestones</text>'
+            f'<text class="ms-sub" x="44" y="106" font-size="21" fill="#3a434a">{"From inception to segment dominance" if idx is None else "Your stage and the milestones ahead"}</text>'
+            f'<path d="{_curve(TILE_POS)}" fill="none" stroke="#acc1e8" stroke-width="34" stroke-linecap="round"/>'
+            f'<path d="{_curve(TILE_POS)}" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 14"/>'
+            + "".join(tiles) + "</svg>")
 
 
 # ---------- Market Traction stages (one data file feeds the overview and the six stage pages) ----------
@@ -275,13 +352,14 @@ def render_tokens(body, path):
 ORDINALS = ["one", "two", "three", "four", "five", "six"]
 
 
-def stage_article(i, s, heading_tag, link_title):
+def stage_article(i, s, heading_tag, link_title, graphic=True):
     name = f'<a href="{url("/market-traction/stages/" + s["slug"] + "/")}">{esc(s["name"])}</a>' if link_title else esc(s["name"])
     nxt = f'<h3>What’s next?</h3><p>{s["next"]}</p>' if s.get("next") else ""
+    fig = f'<figure class="stage-graphic">{milestones_svg(s["slug"], uid="ms-" + s["slug"])}</figure>' if graphic else ""
     return f"""<article class="stage" id="{s['slug']}">
   <p class="eyebrow">Stage {ORDINALS[i]} of six</p>
   <{heading_tag}>{name}</{heading_tag}>
-  <figure class="stage-graphic"><img src="{url('/assets/img/' + s['image'])}" alt="Market traction road map with {esc(s['name'])} highlighted: Eureka, Kaa Ching, Two Thumbs Up, Momentum, Building Buzz, Market Traction" width="1400" height="492" loading="lazy"></figure>
+  {fig}
   <h3>{s['headline']}</h3>
   <p>{s['body']}</p>
   {nxt}
@@ -298,7 +376,8 @@ def stage_sidebar(current):
 
 def stage_pages():
     """Yield (meta, body, path) for the stages overview and each stage."""
-    arts = "\n".join(stage_article(i, s, "h2", True) for i, s in enumerate(STAGES))
+    arts = '<figure class="figure-graphic">' + milestones_svg(uid="ms-all") + "</figure>\n"
+    arts += "\n".join(stage_article(i, s, "h2", True, graphic=False) for i, s in enumerate(STAGES))
     yield ({
         "title": "The Six Stages of Market Traction",
         "description": "The six milestones a technology start-up passes on the road to market traction: Eureka, Kaa Ching, Two Thumbs Up, Momentum, Building Buzz and Market Traction.",

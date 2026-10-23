@@ -227,6 +227,15 @@ p, ul, ol, blockquote, figure { margin: 0 0 1.2em; }
 .figure-wide { margin: 0 0 2.5rem; }
 .figure-wide img { width: 100%; border-radius: var(--radius); aspect-ratio: 16 / 7; object-fit: cover; }
 .figure-graphic img { width: 100%; }
+.figure-graphic figcaption { font-size: 0.92rem; color: var(--muted); margin-top: 0.7rem; }
+
+/* Market Traction milestones graphic (inline SVG, built in build.py) */
+.milestones { display: block; width: 100%; height: auto; max-width: 62rem; }
+.milestones .ms-tile { cursor: pointer; }
+.milestones .ms-tile > rect { transition: transform 0.15s ease; transform-box: fill-box; transform-origin: center; }
+.milestones .ms-tile:hover > rect, .milestones .ms-tile:focus-visible > rect { stroke: var(--link); transform: scale(1.05); }
+.milestones .ms-tile:focus { outline: none; }
+@media (prefers-reduced-motion: reduce) { .milestones .ms-tile > rect { transition: none; } }
 
 blockquote {
   margin: 1.5rem 0 1.8rem; padding: 0.2rem 0 0.2rem 1.3rem;
@@ -338,3 +347,7 @@ blockquote footer { font-style: normal; font-size: 0.92rem; color: var(--muted);
 .site-footer li { margin-bottom: 0.35rem; }
 .site-footer a { color: var(--ink); }
 .site-footer .legal { grid-column: 1 / -1; border-top: 1px solid rgba(29, 34, 38, 0.15); padding-top: 1.2rem; font-size: 0.85rem; color: #3f4a54; }
+@media (max-width: 40rem) {
+  .milestones .ms-label { font-size: 28px; }
+  .milestones .ms-sub { display: none; }
+}
