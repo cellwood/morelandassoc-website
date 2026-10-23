@@ -272,10 +272,14 @@ def render_tokens(body, path):
 
 
 # ---------- Market Traction milestones graphic ----------
-# Recreated from the original Moreland site (identity guide, Kim Leedy): six milestone tiles
-# climbing an S-curve. Inline SVG so labels use the site fonts and each tile links to its stage.
-# Icons are adapted from Feather (MIT) and Lucide (ISC), drawn on a 24-unit grid.
+# Recreated from Kim Leedy's original (identity guide, p.4): six milestone photos along an S-curve
+# that runs flat along the bottom, climbs steeply through the middle and levels off top right.
+# Drawn on the original's 1726 x 1408 canvas so tile and label positions match it exactly.
+# Inline SVG, so text uses the site fonts and each tile links to its stage page.
 
+MILESTONE_TILES = "photo"   # "photo" = the original 2006 tile photos; "icon" = line icons (kept as an alternative)
+
+# Line icons, adapted from Feather (MIT) and Lucide (ISC), on a 24-unit grid. Used when MILESTONE_TILES = "icon".
 ICONS = {
     "eureka": '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/>',
     "kaa-ching": '<circle cx="12" cy="12" r="10"/><path d="M15.5 8.5H11a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4H8.5M12 6v2.5M12 16.5V19"/>',
@@ -284,14 +288,24 @@ ICONS = {
     "building-buzz": '<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4M22 5h-4"/>',
     "market-traction": '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
 }
-# Tile centres on a 1000 x 600 canvas, following the original S-curve layout.
-TILE_POS = [(95, 478), (262, 462), (424, 372), (556, 252), (696, 150), (880, 100)]
-LABEL_LINES = {"two-thumbs-up": ["Two", "Thumbs Up"], "building-buzz": ["Building", "Buzz"], "market-traction": ["Market", "Traction"]}
+
+# Tile top-left corners (200 x 200) and label anchors, measured from the original.
+TILES = {
+    "eureka": ((40, 1145), (140, 1392), ["Eureka"]),
+    "kaa-ching": ((428, 1110), (528, 1356), ["Kaa Ching"]),
+    "two-thumbs-up": ((768, 895), (868, 1142), ["Two", "Thumbs Up"]),
+    "momentum": ((944, 527), (1044, 774), ["Momentum"]),
+    "building-buzz": ((1162, 157), (1262, 404), ["Building", "Buzz"]),
+    "market-traction": ((1489, 38), (1589, 284), ["Market", "Traction"]),
+}
+# Centre line of the S-curve, traced from the original artwork.
+S_CURVE = [(-60, 1270), (150, 1261), (288, 1256), (408, 1252), (530, 1240), (648, 1210), (720, 1168),
+           (800, 1108), (860, 1040), (910, 968), (960, 885), (1008, 790), (1056, 690), (1104, 572),
+           (1152, 451), (1210, 370), (1270, 287), (1368, 161), (1440, 111), (1530, 88), (1704, 68), (1800, 62)]
 
 
-def _curve(points):
-    """Smooth path through points (Catmull-Rom converted to cubic Béziers)."""
-    p = [(-40, 505)] + points + [(1040, 70)]
+def _curve(p):
+    """Smooth path through points (Catmull-Rom converted to cubic Beziers)."""
     d = f"M{p[0][0]},{p[0][1]}"
     for i in range(len(p) - 1):
         p0, p1, p2 = p[max(i - 1, 0)], p[i], p[i + 1]
@@ -302,49 +316,76 @@ def _curve(points):
     return d
 
 
-def milestones_svg(active=None, link=True, uid="m"):
-    """The six-milestone road map. `active` = slug of the stage to highlight (earlier stages show as passed)."""
+def _tile_art(slug, x, y, state, photo_href):
+    if MILESTONE_TILES == "photo":
+        return (f'<rect x="{x}" y="{y}" width="200" height="200" fill="#fff" stroke="#7d868c" stroke-width="3"/>'
+                f'<image href="{photo_href(slug)}" x="{x + 6}" y="{y + 6}" width="188" height="188" preserveAspectRatio="xMidYMid slice"/>')
+    fill, stroke = ("#2c5b8c", "#ffffff") if state == "active" else ("#ffffff", "#2c5b8c")
+    return (f'<rect x="{x}" y="{y}" width="200" height="200" rx="16" fill="{fill}" stroke="#acc1e8" stroke-width="4"/>'
+            f'<g transform="translate({x + 46} {y + 46}) scale(4.5)" fill="none" stroke="{stroke}" stroke-width="1.6" '
+            f'stroke-linecap="round" stroke-linejoin="round">{ICONS[slug]}</g>')
+
+
+def milestones_svg(active=None, link=True, uid="m", photo_href=None):
+    """Moreland's Market Traction Milestones. `active` = slug to highlight (earlier stages are marked passed)."""
+    photo_href = photo_href or (lambda slug: url(f"/assets/img/milestones/{slug}.webp"))
     idx = next((i for i, s in enumerate(STAGES) if s["slug"] == active), None)
     tiles = []
-    for i, (s, (x, y)) in enumerate(zip(STAGES, TILE_POS)):
+    for i, s in enumerate(STAGES):
+        (x, y), (lx, ly), lines = TILES[s["slug"]]
         state = "active" if i == idx else "passed" if idx is not None and i < idx else "ahead"
-        tile_fill, icon_col, ring = {
-            "active": ("#2c5b8c", "#ffffff", "#2c5b8c"),
-            "passed": ("#ffffff", "#2c5b8c", "#71a1d5"),
-            "ahead": ("#ffffff", "#2c5b8c", "#acc1e8"),
-        }[state]
-        badge = (f'<circle cx="{x - 46}" cy="{y - 46}" r="15" fill="#71a1d5"/>'
-                 f'<path d="M{x - 53} {y - 46}l5 5 9-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
-                 if state == "passed" else
-                 f'<circle cx="{x - 46}" cy="{y - 46}" r="15" fill="{"#1d2226" if state == "active" else "#71a1d5"}"/>'
-                 f'<text x="{x - 46}" y="{y - 40}" text-anchor="middle" font-size="17" font-weight="600" fill="#fff">{i + 1}</text>')
-        lines = LABEL_LINES.get(s["slug"], [s["name"]])
-        label = "".join(f'<tspan x="{x}" dy="{0 if j == 0 else '1.1em'}">{esc(t)}</tspan>' for j, t in enumerate(lines))
-        weight = "600" if state == "active" else "500"
-        halo = f'<rect x="{x - 64}" y="{y - 64}" width="128" height="128" rx="16" fill="none" stroke="#2c5b8c" stroke-opacity=".25" stroke-width="6"/>' if state == "active" else ""
-        body = (f'{halo}<rect x="{x - 52}" y="{y - 52}" width="104" height="104" rx="10" fill="{tile_fill}" stroke="{ring}" stroke-width="3"/>'
-                f'<g transform="translate({x - 28} {y - 28}) scale(2.333)" fill="none" stroke="{icon_col}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{ICONS[s["slug"]]}</g>'
-                f'{badge}<text class="ms-label" x="{x}" y="{y + 90}" text-anchor="middle" font-size="22" font-weight="{weight}" fill="{"#1d2226" if state == "active" else "#2c5b8c"}">{label}</text>')
+        art = _tile_art(s["slug"], x, y, state, photo_href)
+        mark = ""
+        if state == "active":
+            mark = f'<rect x="{x - 12}" y="{y - 12}" width="224" height="224" rx="6" fill="none" stroke="#2c5b8c" stroke-width="10"/>'
+        elif state == "passed":
+            mark = (f'<circle cx="{x + 196}" cy="{y + 4}" r="30" fill="#2c5b8c" stroke="#fff" stroke-width="5"/>'
+                    f'<path d="M{x + 181} {y + 4}l10 10 18-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>')
+        spans = "".join(f'<tspan x="{lx}" dy="{"0" if j == 0 else "1.15em"}">{esc(t)}</tspan>' for j, t in enumerate(lines))
+        colour = "#1d2226" if state == "active" else "#2c5b8c"
+        label = f'<text class="ms-label" x="{lx}" y="{ly + (16 if state == "active" else 0)}" text-anchor="middle" font-size="36" font-weight="600" fill="{colour}">{spans}</text>'
         tip = f'<title>Stage {i + 1}: {esc(s["name"])}. {esc(s["headline"])}</title>'
+        body = art + mark + label
         if link:
-            href = url(f'/market-traction/stages/{s["slug"]}/')
             cur = ' aria-current="step"' if state == "active" else ""
-            tiles.append(f'<a href="{href}" class="ms-tile"{cur}>{tip}{body}</a>')
+            tiles.append(f'<a href="{url("/market-traction/stages/" + s["slug"] + "/")}" class="ms-tile"{cur}>{tip}{body}</a>')
         else:
-            tiles.append(f'<g>{tip}{body}</g>')
+            tiles.append(f"<g>{tip}{body}</g>")
+
     names = ", ".join(s["name"] for s in STAGES)
-    summary = f"The road to market traction in six milestones: {names}."
+    summary = f"Moreland\u2019s Market Traction Milestones: {names}."
     if idx is not None:
         summary += f" Stage {idx + 1}, {STAGES[idx]['name']}, is highlighted."
-    return (f'<svg class="milestones" viewBox="0 0 1000 600" role="group" aria-labelledby="{uid}-t" '
+    text = '<text class="ms-title" x="50" y="128" font-size="40" font-weight="600" fill="#2c5b8c">Moreland\u2019s Market Traction Milestones</text>'
+    if idx is None:
+        text += ('<text class="ms-desc" font-size="34" fill="#3a434a">'
+                 '<tspan x="50" y="185">This model describes the evolution of a</tspan>'
+                 '<tspan x="50" dy="1.65em">technology company from inception through</tspan>'
+                 '<tspan x="50" dy="1.65em">the achievement of market traction.</tspan></text>')
+        test = f'<a href="{url("/market-traction/test/")}">' if link else "<g>"
+        test_end = "</a>" if link else "</g>"
+        text += (f'<g class="ms-callout"><rect x="78" y="460" width="645" height="310" fill="#fff" stroke="#2c5b8c" stroke-width="3"/>'
+                 '<text x="400" y="545" text-anchor="middle" font-size="32" fill="#3a434a">Select a milestone for</text>'
+                 '<text x="400" y="592" text-anchor="middle" font-size="32" fill="#3a434a">an explanation of each, then</text>'
+                 f'{test}<text x="400" y="680" text-anchor="middle" font-size="38" font-weight="600" fill="#2c5b8c" text-decoration="underline">Take the Traction Test</text>{test_end}</g>')
+        svc = f'<a href="{url("/services/interim-executive/")}">' if link else "<g>"
+        svc_end = "</a>" if link else "</g>"
+        text += ('<text class="ms-services" font-size="34" font-weight="600" fill="#5d6870">'
+                 f'<tspan x="1166" y="1188">Moreland has </tspan>{svc}<tspan fill="#2c5b8c" text-decoration="underline">services</tspan>{svc_end}'
+                 '<tspan x="1166" dy="1.45em">to address your needs</tspan>'
+                 '<tspan x="1166" dy="1.45em">along the road to</tspan>'
+                 '<tspan x="1166" dy="1.45em">market traction.</tspan></text>')
+    else:
+        text += f'<text class="ms-desc" x="50" y="185" font-size="34" fill="#3a434a">Stage {idx + 1} of 6: the milestones you\u2019ve passed and those ahead</text>'
+
+    return (f'<svg class="milestones" viewBox="0 0 1726 1408" role="group" aria-labelledby="{uid}-t" '
             f'font-family="Jost, Futura, \'Century Gothic\', sans-serif">'
             f'<title id="{uid}-t">{esc(summary)}</title>'
-            f'<rect width="1000" height="600" rx="14" fill="#dae4f5"/>'
-            f'<text class="ms-title" x="44" y="70" font-size="32" font-weight="500" fill="#2c5b8c">Moreland’s Market Traction Milestones</text>'
-            f'<text class="ms-sub" x="44" y="106" font-size="21" fill="#3a434a">{"From inception to segment dominance" if idx is None else "Your stage and the milestones ahead"}</text>'
-            f'<path d="{_curve(TILE_POS)}" fill="none" stroke="#acc1e8" stroke-width="34" stroke-linecap="round"/>'
-            f'<path d="{_curve(TILE_POS)}" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 14"/>'
-            + "".join(tiles) + "</svg>")
+            f'<defs><linearGradient id="{uid}-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dae4f5"/><stop offset="1" stop-color="#c8d3e8"/></linearGradient>'
+            f'<clipPath id="{uid}-clip"><rect width="1726" height="1408" rx="18"/></clipPath></defs>'
+            f'<g clip-path="url(#{uid}-clip)"><rect width="1726" height="1408" fill="url(#{uid}-bg)"/>'
+            f'<path d="{_curve(S_CURVE)}" fill="none" stroke="#acc1e8" stroke-width="48"/></g>'
+            + text + "".join(tiles) + "</svg>")
 
 
 # ---------- Market Traction stages (one data file feeds the overview and the six stage pages) ----------

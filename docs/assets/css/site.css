@@ -348,6 +348,7 @@ blockquote footer { font-style: normal; font-size: 0.92rem; color: var(--muted);
 .site-footer a { color: var(--ink); }
 .site-footer .legal { grid-column: 1 / -1; border-top: 1px solid rgba(29, 34, 38, 0.15); padding-top: 1.2rem; font-size: 0.85rem; color: #3f4a54; }
 @media (max-width: 40rem) {
-  .milestones .ms-label { font-size: 28px; }
-  .milestones .ms-sub { display: none; }
+  .milestones .ms-label { font-size: 62px; }
+  .milestones .ms-title { font-size: 66px; }
+  .milestones .ms-desc, .milestones .ms-callout, .milestones .ms-services { display: none; }
 }
