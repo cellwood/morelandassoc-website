@@ -1,0 +1,72 @@
+<!--
+{
+  "path": "/market-traction/test/",
+  "title": "Market Traction Test",
+  "description": "Answer six yes-or-no questions in 30 seconds to pinpoint where your technology company is on the road to market traction, and see the milestones ahead."
+}
+-->
+<div class="page-head"><div class="wrap">
+  <p class="eyebrow">Market Traction</p>
+  <h1>Market Traction Test</h1>
+  <p class="lead">Where is your company on the road to market traction?</p>
+</div></div>
+
+<section class="section">
+  <div class="wrap with-sidebar">
+    {{sidebar:market-traction}}
+    <div>
+      <div class="prose">
+        <h2>About the Traction Test</h2>
+        <p>From concept phase, through product development and segment dominance, there are predictable milestones a technology start-up will pass on the way. We specialize in helping technology companies address the sales and marketing challenges at each phase and accelerate the time to market traction.</p>
+        <h2>Take the test</h2>
+        <p>Take 30 seconds to fill out the test below and pinpoint your current position on the road to market traction. Once you&rsquo;re done, we&rsquo;ll show you the milestones you&rsquo;ve passed and those that lie ahead.</p>
+      </div>
+
+      <form class="quiz" id="traction-test" data-results="{{base}}/market-traction/stages/" novalidate>
+        <fieldset>
+          <legend><span class="n">1</span>Is the product developed and ready for sale to a customer for a &ldquo;live&rdquo; deployment?</legend>
+          <div class="choices">
+            <label><input type="radio" name="productdev" value="1">Yes</label>
+            <label><input type="radio" name="productdev" value="0">No</label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span class="n">2</span>Have you sold, shipped, installed, invoiced, and been paid for your first product?</legend>
+          <div class="choices">
+            <label><input type="radio" name="shipped" value="1">Yes</label>
+            <label><input type="radio" name="shipped" value="0">No</label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span class="n">3</span>Do you have customers who are credible to your prospects?</legend>
+          <div class="choices">
+            <label><input type="radio" name="credible" value="1">Yes</label>
+            <label><input type="radio" name="credible" value="0">No</label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span class="n">4</span>Have you targeted a single market segment, and are your salespeople increasingly able to predict their closure rate for prospects in that segment?</legend>
+          <div class="choices">
+            <label><input type="radio" name="segment" value="1">Yes</label>
+            <label><input type="radio" name="segment" value="0">No</label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span class="n">5</span>Do the industry analysts recognize your company as having the #1, #2, or #3 product in the market segment?</legend>
+          <div class="choices">
+            <label><input type="radio" name="analysts" value="1">Yes</label>
+            <label><input type="radio" name="analysts" value="0">No</label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><span class="n">6</span>Are you the dominant player in the target segment?</legend>
+          <div class="choices">
+            <label><input type="radio" name="dominant" value="1">Yes</label>
+            <label><input type="radio" name="dominant" value="0">No</label>
+          </div>
+        </fieldset>
+        <div class="actions"><button class="btn" type="submit">See my results</button></div>
+      </form>
+    </div>
+  </div>
+</section>
