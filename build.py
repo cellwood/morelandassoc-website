@@ -25,7 +25,7 @@ PRODUCTION = "--production" in sys.argv
 BASE = "" if PRODUCTION else PREVIEW_BASE
 
 # Form service. Create the form at formspree.io and paste its ID here.
-FORM_ENDPOINT = "https://formspree.io/f/REPLACE_WITH_FORM_ID"
+FORM_ENDPOINT = "https://formspree.io/f/maeeyrko"
 GA_ID = "G-6KYK9C1W08"
 
 BUSINESS = {
