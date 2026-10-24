@@ -68,6 +68,16 @@
   // ---- Forms: submit to the form service without leaving the page ----
   document.querySelectorAll("form[data-form]").forEach(function (form) {
     var status = form.querySelector(".form-status");
+    // Tell the recipient where the enquiry came from
+    var h1 = document.querySelector("h1");
+    var heading = h1 ? h1.textContent.trim() : document.title;
+    var cameFrom = document.referrer && document.referrer.indexOf(location.origin) === 0 ? document.referrer : (document.referrer ? "another site: " + document.referrer : "direct visit");
+    var set = function (name, value) { var f = form.querySelector('input[name="' + name + '"]'); if (f) f.value = value; };
+    set("page_heading", heading);
+    set("form_page", location.href);
+    set("came_from", cameFrom);
+    var subject = form.querySelector('input[name="_subject"]');
+    if (subject && heading && subject.value.indexOf(heading) === -1) subject.value += " · " + heading;
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var btn = form.querySelector('[type="submit"]');

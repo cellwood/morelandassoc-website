@@ -98,12 +98,22 @@ def url(path):
     return BASE + path
 
 
+def asset(path):
+    """URL with a short content hash, so browsers fetch the new file whenever it changes."""
+    import hashlib
+    digest = hashlib.sha1((OUT / path.lstrip("/")).read_bytes()).hexdigest()[:8]
+    return f"{url(path)}?v={digest}"
+
+
 def form_html(kind):
     phone_req, msg_req, hint, subject = FORMS[kind]
     req = '<span class="req">(required)</span>'
     return f"""<form class="form" data-form action="{FORM_ENDPOINT}" method="POST">
   <input type="hidden" name="_subject" value="{esc(subject)}">
   <input type="hidden" name="topic" value="{kind}">
+  <input type="hidden" name="page_heading" value="">
+  <input type="hidden" name="form_page" value="">
+  <input type="hidden" name="came_from" value="">
   <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label></div>
   <div class="row">
     <div><label for="{kind}-first">First name {req}</label><input id="{kind}-first" name="first_name" autocomplete="given-name" required></div>
@@ -341,7 +351,7 @@ def layout(meta, body, path):
 <link rel="apple-touch-icon" href="{url('/assets/img/apple-touch-icon.png')}">
 <link rel="preload" href="{url('/assets/fonts/jost.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{url('/assets/fonts/mulish.woff2')}" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{url('/assets/css/site.css')}">
+<link rel="stylesheet" href="{asset('/assets/css/site.css')}">
 {hero_preload}
 {jsonld}
 {ga}
@@ -385,7 +395,7 @@ def layout(meta, body, path):
     <p class="legal">&copy; {date.today().year} Moreland Associates. All rights reserved.</p>
   </div>
 </footer>
-<script src="{url('/assets/js/site.js')}" defer></script>
+<script src="{asset('/assets/js/site.js')}" defer></script>
 </body>
 </html>
 """
