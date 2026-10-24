@@ -5,7 +5,8 @@
     "description": "Stage one of market traction: your product is working and ready for customers. Next comes first revenue.",
     "headline": "It’s exciting to see your idea manifested in a working product!",
     "body": "From the beginning, you’ve envisioned the finished product and how it would work. Now it’s really here and ready for the customers.",
-    "next": "Focus will now shift to making the first sales and preparing to ship, install, invoice, and receive payment. In other words, to make your cash register ring — Kaa Ching!"
+    "next": "Focus will now shift to making the first sales and preparing to ship, install, invoice, and receive payment. In other words, to make your cash register ring — Kaa Ching!",
+    "seo_description": "Eureka is the first milestone on the road to market traction: your technology product works and is ready for customers. Learn what comes next: first revenue."
   },
   {
     "slug": "kaa-ching",
@@ -13,7 +14,8 @@
     "description": "Stage two of market traction: first revenue. Next comes building reference accounts your target buyers recognize.",
     "headline": "First revenue — that’s great!",
     "body": "To get that first revenue is such a satisfying feeling. Sure, it’s probably from another small local company that you have ties with, but it’s money in the bank.",
-    "next": "The next challenge is to develop reference accounts that are recognizable to the companies you are targeting. Reference companies have the key problem your product is designed to address and will serve as credible references to other buyers. This phase is called Two Thumbs Up."
+    "next": "The next challenge is to develop reference accounts that are recognizable to the companies you are targeting. Reference companies have the key problem your product is designed to address and will serve as credible references to other buyers. This phase is called Two Thumbs Up.",
+    "seo_description": "Kaa Ching is the second milestone to market traction: first revenue. Next, build reference accounts your target buyers recognize and trust."
   },
   {
     "slug": "two-thumbs-up",
@@ -21,7 +23,8 @@
     "description": "Stage three of market traction: credible reference accounts. Next comes choosing a beachhead segment and building momentum.",
     "headline": "You closed some key accounts — amazing!",
     "body": "The fact that these companies have purchased and are happy tells prospects that your product works and you can deliver.",
-    "next": "Now, you’ve got to leverage this credibility to build momentum. You must evaluate the various market segments you are currently selling into, select the one in which you will build a beachhead, and then focus the company on this segment."
+    "next": "Now, you’ve got to leverage this credibility to build momentum. You must evaluate the various market segments you are currently selling into, select the one in which you will build a beachhead, and then focus the company on this segment.",
+    "seo_description": "Two Thumbs Up is the third milestone to market traction: credible reference customers. Next, choose a beachhead segment and focus the company on it."
   },
   {
     "slug": "momentum",
@@ -33,20 +36,23 @@
     "deep_dive": {
       "text": "Read more: how to choose your beachhead segment",
       "href": "/market-traction/#momentum"
-    }
+    },
+    "seo_description": "Momentum is the fourth milestone to market traction: the whole company focused on one beachhead segment with a predictable pipeline. Next: building buzz."
   },
   {
     "slug": "building-buzz",
     "name": "Building Buzz",
     "description": "Stage five of market traction: you are a recognized key player in your target segment. Next comes segment dominance.",
     "headline": "Congrats — you’re a key player in your target segment!",
-    "body": "This means your sales cycle should be shortening, since the target buyer knows who you are before your sales rep contacts them. It’s also known that your product is worthy of consideration by a target buyer — even before they are ready to buy. Your next challenge is to dominate the segment and reach the Market Traction milestone."
+    "body": "This means your sales cycle should be shortening, since the target buyer knows who you are before your sales rep contacts them. It’s also known that your product is worthy of consideration by a target buyer — even before they are ready to buy. Your next challenge is to dominate the segment and reach the Market Traction milestone.",
+    "seo_description": "Building Buzz is the fifth milestone to market traction: you're a recognized key player in your segment and sales cycles shorten. Next: dominate the segment."
   },
   {
     "slug": "market-traction",
     "name": "Market Traction",
     "description": "Stage six: market traction. Your company dominates its segment and can afford to expand into the next one.",
     "headline": "You’ve done it!",
-    "body": "Your company has dominated the selected market segment. Prospective buyers in this segment automatically look to your company for a solution. The stamp of credibility of the press and analysts helped fill your sales pipeline and made you attractive to strategic partners. Now, your company is in the driver’s seat for this segment and you can afford to go after a new segment and expand. Contact us to learn how Moreland can help you capitalize on your success."
+    "body": "Your company has dominated the selected market segment. Prospective buyers in this segment automatically look to your company for a solution. The stamp of credibility of the press and analysts helped fill your sales pipeline and made you attractive to strategic partners. Now, your company is in the driver’s seat for this segment and you can afford to go after a new segment and expand. Contact us to learn how Moreland can help you capitalize on your success.",
+    "seo_description": "Market Traction is the sixth milestone: your company dominates its beachhead segment, buyers come to you, and you can afford to expand into the next one."
   }
 ]

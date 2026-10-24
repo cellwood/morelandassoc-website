@@ -9,11 +9,13 @@ robots.txt and 404.html. Uses only the Python standard library.
     python3 build.py --production # live build (served from www.morelandassoc.com)
 """
 import html
+from html.parser import HTMLParser
 import json
 import re
 import sys
 from datetime import date
 from pathlib import Path
+from urllib.parse import urljoin
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src" / "pages"
@@ -282,7 +284,12 @@ def page_jsonld(meta, path, title):
 def layout(meta, body, path):
     title = meta["title"] if meta.get("exact_title") else f'{meta["title"]} | Moreland Associates'
     canonical = SITE_URL + path
-    og_image = SITE_URL + "/assets/img/" + meta.get("og_image", "share-card.png")
+    og_title = meta.get("og_title", title)
+    og_desc = meta.get("og_description", meta["description"])
+    card = share_card(path)
+    og_image = SITE_URL + "/assets/img/" + card
+    og_alt = f"{og_title}, Moreland Associates" if card != "share-card.png" else "Moreland Associates logo"
+    md_link = "" if meta.get("noindex") else f'<link rel="alternate" type="text/markdown" href="{url(md_path(path))}" title="Markdown version">'
     # The preview copy on github.io must never be indexed in place of the real site.
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") or not PRODUCTION else ""
     jsonld = page_jsonld(meta, path, title)
@@ -300,13 +307,21 @@ def layout(meta, body, path):
 <meta name="description" content="{esc(meta['description'])}">
 {robots}
 <link rel="canonical" href="{canonical}">
+{md_link}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Moreland Associates">
-<meta property="og:title" content="{esc(title)}">
-<meta property="og:description" content="{esc(meta['description'])}">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="{esc(og_title)}">
+<meta property="og:description" content="{esc(og_desc)}">
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content="{og_image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{esc(og_alt)}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{esc(og_title)}">
+<meta name="twitter:description" content="{esc(og_desc)}">
+<meta name="twitter:image" content="{og_image}">
 <link rel="icon" href="{url('/favicon.ico')}" sizes="any">
 <link rel="icon" href="{url('/favicon.svg')}" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="{url('/assets/img/favicon-32.png')}">
@@ -533,7 +548,8 @@ def stage_pages():
     arts += "\n".join(stage_article(i, s, "h2", True, graphic=False) for i, s in enumerate(STAGES))
     yield ({
         "title": "The Six Stages of Market Traction",
-        "description": "The six milestones a technology start-up passes on the road to market traction: Eureka, Kaa Ching, Two Thumbs Up, Momentum, Building Buzz and Market Traction.",
+        "description": "The six milestones a technology company passes on the road to market traction: Eureka, Kaa Ching, Two Thumbs Up, Momentum, Building Buzz and Market Traction.",
+        "og_description": "From a working product to segment dominance: the six milestones, and what marketing and sales need at each one.",
     }, f"""<div class="page-head"><div class="wrap">
   <p class="eyebrow">Market Traction</p>
   <h1>The six stages of market traction</h1>
@@ -558,7 +574,9 @@ def stage_pages():
         yield ({
             "title": f'{s["name"]}: Market Traction Stage {i + 1} | Moreland',
             "exact_title": True,
-            "description": s["description"],
+            "description": s.get("seo_description", s["description"]),
+            "og_title": f'{s["name"]}: Stage {i + 1} of the Milestones to Market Traction',
+            "og_description": s["description"],
         }, f"""<section class="section"><div class="wrap with-sidebar">
   {stage_sidebar(s['slug'])}
   <div class="prose">
@@ -595,7 +613,7 @@ def main():
         sources.append((meta, text[m.end():], meta["path"]))
     sources.extend(stage_pages())
 
-    pages = []
+    pages, markdown = [], []
     for meta, raw, path in sources:
         body = render_tokens(raw, path).replace("{{faq}}", faq_html(meta.get("faq", [])))
         dest = OUT / "404.html" if path == "/404" else OUT / path.strip("/") / "index.html"
@@ -603,6 +621,9 @@ def main():
         dest.write_text(layout(meta, body, path), encoding="utf-8")
         if not meta.get("noindex"):
             pages.append(path)
+            md = page_markdown(meta, body, path)
+            (OUT / md_path(path).lstrip("/")).write_text(md, encoding="utf-8")
+            markdown.append((path, md))
 
     for old, new in REDIRECTS.items():
         # "folder/" keys become folder/index.html so the trailing-slash address keeps working
@@ -619,6 +640,10 @@ def main():
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     (OUT / "llms.txt").write_text(llms_txt(), encoding="utf-8")
+    # Every page in one file, in site order, for agents that want the whole site at once
+    order = {p: i for i, p in enumerate(LLMS_PAGES)}
+    full = "\n\n".join(md for p, md in sorted(markdown, key=lambda pm: (order.get(pm[0], 99), pm[0])))
+    (OUT / "llms-full.txt").write_text(full, encoding="utf-8")
     # GitHub Pages custom domain: only in the live build (it would redirect the github.io preview)
     cname = OUT / "CNAME"
     if PRODUCTION:
@@ -626,6 +651,157 @@ def main():
     elif cname.exists():
         cname.unlink()
     print(f"Built {len(pages)} pages and {len(REDIRECTS)} redirects ({'production' if PRODUCTION else 'preview'}, base='{BASE}')")
+
+
+def share_card(path):
+    """Per-page social image from tools/make_share_cards.py, or the logo card."""
+    name = f'share/{path.strip("/").replace("/", "-") or "home"}.jpg'
+    return name if (OUT / "assets" / "img" / name).exists() else "share-card.png"
+
+
+def md_path(path):
+    """Markdown twin of a page, following the llmstxt.org convention (folder URLs get index.html.md)."""
+    return path + "index.html.md" if path.endswith("/") else path + ".md"
+
+
+class MarkdownWriter(HTMLParser):
+    """Turns a rendered page body into clean Markdown for AI agents: no navigation, forms or graphics."""
+    SKIP = {"svg", "script", "style", "noscript", "button", "select", "textarea", "aside", "nav", "label"}
+    VOID = {"input", "img", "br", "hr", "meta", "link", "source", "wbr"}
+    BLOCKS = {"p", "h1", "h2", "h3", "h4", "li", "figcaption", "summary", "legend", "blockquote", "div", "section", "footer", "ul", "ol", "details", "figure", "fieldset"}
+
+    def __init__(self, page_url):
+        super().__init__(convert_charrefs=True)
+        self.page_url, self.blocks, self.buf = page_url, [], []
+        self.skip, self.lists, self.hrefs, self.quote, self.prefix, self.wrap = 0, [], [], 0, "", ""
+
+    def flush(self):
+        text = re.sub(r"[ \t]+", " ", "".join(self.buf)).strip()
+        text = re.sub(r"\*\*\s*\*\*|__", "", text)
+        if text:
+            line = self.prefix + self.wrap + text + self.wrap
+            if self.quote:
+                line = "> " + line
+            self.blocks.append(("li" if self.prefix.lstrip().startswith(("-", "1", "2", "3", "4", "5", "6", "7", "8", "9")) else "p", line))
+        self.buf, self.prefix, self.wrap = [], "", ""
+
+    def handle_startendtag(self, tag, attrs):
+        if not self.skip:
+            self.handle_starttag(tag, attrs)
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        cls = (a.get("class") or "").split()
+        if self.skip:
+            self.skip += tag not in self.VOID
+            return
+        if tag == "svg" and "milestones" in cls:
+            # The graphic becomes a plain list of the six milestones
+            self.flush()
+            for i, st in enumerate(STAGES, 1):
+                self.blocks.append(("li", f"{i}. [{st['name']}]({SITE_URL}/market-traction/stages/{st['slug']}/): {st['description']}"))
+            self.skip = 1
+            return
+        if tag in self.SKIP or a.get("aria-hidden") == "true" or "n" in cls or "skip-link" in cls:
+            self.skip = 1
+            return
+        if tag == "form" and "quiz" not in cls:
+            self.flush()
+            self.blocks.append(("p", f"_A contact form appears here on the web page ({self.page_url}). You can also email info@morelandassoc.com or call (510) 833-7308._"))
+            self.skip = 1
+            return
+        if tag in self.BLOCKS:
+            self.flush()
+        if tag in ("ul", "ol"):
+            self.lists.append([tag, 0, cls])
+        elif tag == "form":
+            self.lists.append(["ol", 0, cls])
+        elif tag in ("li", "legend") and self.lists:
+            kind = self.lists[-1]
+            kind[1] += 1
+            self.prefix = "  " * (len(self.lists) - 1) + (f"{kind[1]}. " if kind[0] == "ol" else "- ")
+            if tag == "legend":
+                self.wrap = ""
+        elif tag in ("h1", "h2", "h3", "h4"):
+            self.prefix = "#" * int(tag[1]) + " "
+        elif tag == "summary":
+            self.prefix = "### "
+        elif tag == "figcaption":
+            self.wrap = "_"
+        elif tag == "blockquote":
+            self.quote += 1
+        elif tag == "footer" and self.quote:
+            self.prefix = "— "
+        elif tag == "a":
+            if self.buf and self.buf[-1].startswith("]("):
+                self.buf.append(" · ")
+            self.hrefs.append(a.get("href", ""))
+            self.buf.append("[")
+        elif tag in ("strong", "b"):
+            self.buf.append("**")
+        elif tag in ("em", "i"):
+            self.buf.append("_")
+        elif tag == "br":
+            self.buf.append(" ")
+        elif tag == "img" and a.get("alt"):
+            self.buf.append(f'![{a["alt"]}]({urljoin(self.page_url, a.get("src", ""))})')
+
+    def handle_endtag(self, tag):
+        if self.skip:
+            self.skip -= 1
+            return
+        if tag == "a" and self.hrefs:
+            href = self.hrefs.pop()
+            self.buf.append(f"]({urljoin(self.page_url, href)})" if href else "]")
+        elif tag in ("strong", "b"):
+            self.buf.append(":** " if self.lists and "contact-list" in self.lists[-1][2] else "**")
+        elif tag in ("em", "i"):
+            self.buf.append("_")
+        elif tag in self.BLOCKS or tag == "form":
+            self.flush()
+            if tag in ("ul", "ol", "form") and self.lists:
+                self.lists.pop()
+            if tag == "blockquote":
+                self.quote -= 1
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.buf.append(re.sub(r"\s+", " ", data))
+
+    def markdown(self):
+        self.flush()
+        out, prev = [], None
+        for kind, line in self.blocks:
+            if out and not (kind == prev == "li"):
+                out.append("")
+            out.append(line)
+            prev = kind
+        return "\n".join(out)
+
+
+def page_markdown(meta, body, path):
+    page_url = SITE_URL + path
+    title = meta["title"].split(" | ")[0]
+    w = MarkdownWriter(page_url)
+    w.feed(body.replace(BASE + "/", "/") if BASE else body)
+    b = BUSINESS
+    return f"""---
+title: {json.dumps(title, ensure_ascii=False)}
+url: {page_url}
+description: {json.dumps(meta["description"], ensure_ascii=False)}
+---
+
+{w.markdown()}
+
+---
+
+Moreland Associates · {b['phone']} · {b['email']} · {b['street']}, {b['city']}, {b['region']} {b['postal']} · {SITE_URL}/
+"""
+
+
+LLMS_PAGES = ["/", "/services/interim-executive/", "/about/", "/market-traction/", "/market-traction/stages/",
+              *[f"/market-traction/stages/{st}/" for st in ("eureka", "kaa-ching", "two-thumbs-up", "momentum", "building-buzz", "market-traction")],
+              "/market-traction/test/", "/contact/", "/get-started/"]
 
 
 def faq_html(faq):
@@ -666,13 +842,15 @@ Momentum is the inflection point, where a company chooses its beachhead segment.
 
 ## Pages
 
-- [Home]({SITE_URL}/)
-- [Interim Executive services]({SITE_URL}/services/interim-executive/)
-- [What is market traction?]({SITE_URL}/market-traction/)
-- [The six stages]({SITE_URL}/market-traction/stages/)
-- [Market Traction Test]({SITE_URL}/market-traction/test/): six yes/no questions that place a company on the milestones
-- [About Moreland Associates]({SITE_URL}/about/)
-- [Contact]({SITE_URL}/contact/)
+Each page has a Markdown version at the same address plus `index.html.md`; [llms-full.txt]({SITE_URL}/llms-full.txt) has every page in one file.
+
+- [Home]({SITE_URL}/index.html.md)
+- [Interim Executive services]({SITE_URL}/services/interim-executive/index.html.md): interim CMO, COO and CCO roles, why interim not fractional, when to use one, FAQs
+- [About Moreland Associates]({SITE_URL}/about/index.html.md): who we are, how we work, what clients say
+- [What is market traction?]({SITE_URL}/market-traction/index.html.md): definition, the milestones graphic, choosing a beachhead segment, FAQs
+- [The six stages]({SITE_URL}/market-traction/stages/index.html.md)
+- [Market Traction Test]({SITE_URL}/market-traction/test/index.html.md): six yes/no questions that place a company on the milestones
+- [Contact]({SITE_URL}/contact/index.html.md)
 
 ## Contact
 

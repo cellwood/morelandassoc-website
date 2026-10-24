@@ -29,13 +29,15 @@ Momentum is the inflection point, where a company chooses its beachhead segment.
 
 ## Pages
 
-- [Home](https://www.morelandassoc.com/)
-- [Interim Executive services](https://www.morelandassoc.com/services/interim-executive/)
-- [What is market traction?](https://www.morelandassoc.com/market-traction/)
-- [The six stages](https://www.morelandassoc.com/market-traction/stages/)
-- [Market Traction Test](https://www.morelandassoc.com/market-traction/test/): six yes/no questions that place a company on the milestones
-- [About Moreland Associates](https://www.morelandassoc.com/about/)
-- [Contact](https://www.morelandassoc.com/contact/)
+Each page has a Markdown version at the same address plus `index.html.md`; [llms-full.txt](https://www.morelandassoc.com/llms-full.txt) has every page in one file.
+
+- [Home](https://www.morelandassoc.com/index.html.md)
+- [Interim Executive services](https://www.morelandassoc.com/services/interim-executive/index.html.md): interim CMO, COO and CCO roles, why interim not fractional, when to use one, FAQs
+- [About Moreland Associates](https://www.morelandassoc.com/about/index.html.md): who we are, how we work, what clients say
+- [What is market traction?](https://www.morelandassoc.com/market-traction/index.html.md): definition, the milestones graphic, choosing a beachhead segment, FAQs
+- [The six stages](https://www.morelandassoc.com/market-traction/stages/index.html.md)
+- [Market Traction Test](https://www.morelandassoc.com/market-traction/test/index.html.md): six yes/no questions that place a company on the milestones
+- [Contact](https://www.morelandassoc.com/contact/index.html.md)
 
 ## Contact
 
