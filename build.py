@@ -325,7 +325,7 @@ def _tile_art(slug, x, y, state, photo_href):
 
 
 def milestones_svg(active=None, link=True, uid="m", photo_href=None):
-    """Moreland's Market Traction Milestones. `active` = slug to highlight (earlier stages are marked passed)."""
+    """The Milestones to Market Traction. `active` = slug to highlight (earlier stages are marked passed)."""
     photo_href = photo_href or (lambda slug: url(f"/assets/img/milestones/{slug}.webp"))
     idx = next((i for i, s in enumerate(STAGES) if s["slug"] == active), None)
     tiles = []
@@ -351,10 +351,10 @@ def milestones_svg(active=None, link=True, uid="m", photo_href=None):
             tiles.append(f"<g>{tip}{body}</g>")
 
     names = ", ".join(s["name"] for s in STAGES)
-    summary = f"Moreland\u2019s Market Traction Milestones: {names}."
+    summary = f"The Milestones to Market Traction: {names}."
     if idx is not None:
         summary += f" Stage {idx + 1}, {STAGES[idx]['name']}, is highlighted."
-    text = '<text class="ms-title" x="50" y="128" font-size="40" font-weight="600" fill="#2c5b8c">Moreland\u2019s Market Traction Milestones</text>'
+    text = '<text class="ms-title" x="50" y="128" font-size="40" font-weight="600" fill="#2c5b8c">The Milestones to Market Traction</text>'
     if idx is None:
         text += ('<text class="ms-desc" font-size="34" fill="#3a434a">'
                  '<tspan x="50" y="185">This model describes the evolution of a</tspan>'
