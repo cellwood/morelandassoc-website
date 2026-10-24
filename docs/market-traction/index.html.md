@@ -1,7 +1,7 @@
 ---
 title: "What Is Market Traction?"
 url: https://www.morelandassoc.com/market-traction/
-description: "A company has market traction when its product is predictably sold to buyers in one market segment. Learn the six milestones on the road to market traction."
+description: "A company has market traction when it has a dominant position in a single segment. Learn the six milestones on the road to market traction."
 ---
 
 Market Traction
