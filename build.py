@@ -144,16 +144,40 @@ def nav_html(path):
     return "".join(items)
 
 
-def org_jsonld():
+ORG_ID = SITE_URL + "/#org"
+SITE_ID = SITE_URL + "/#website"
+FRAMEWORK_ID = SITE_URL + "/market-traction/#milestones"
+
+# Short names for breadcrumbs (pages not listed here are skipped as intermediate crumbs)
+CRUMBS = {
+    "/": "Home",
+    "/services/interim-executive/": "Interim Executive",
+    "/market-traction/": "Market Traction",
+    "/market-traction/test/": "Market Traction Test",
+    "/market-traction/stages/": "The six stages",
+    "/about/": "About",
+    "/contact/": "Contact",
+    "/get-started/": "Get Started",
+}
+
+ROLES = [
+    ("Interim Chief Marketing Officer (CMO)", "Own the market with an AI-first go-to-market: positioning, messaging, awareness and the engine that turns it into pipeline, including visibility in AI search and chat assistants."),
+    ("Interim Chief Operating Officer (COO)", "Turn a promising company into a well-run one with an AI-first operating model: the cadence, processes, tools and team to scale."),
+    ("Interim Chief Commercial Officer (CCO)", "Lead the whole commercial engine, from marketing through sales, onboarding and customer success, with AI-first commercial operations."),
+]
+
+
+def org_node():
     b = BUSINESS
-    data = {
-        "@context": "https://schema.org",
+    return {
         "@type": "ProfessionalService",
+        "@id": ORG_ID,
         "name": b["name"],
         "url": SITE_URL + "/",
         "logo": SITE_URL + "/assets/img/moreland-logo.png",
         "image": SITE_URL + "/assets/img/share-card.png",
-        "description": "Moreland Associates is a consulting firm of seasoned executives who help technology companies achieve market traction, serving as interim CMO, COO and CCO with an AI-first approach to go-to-market and operations.",
+        "description": "Moreland Associates provides interim executive leaders (interim CMO, COO and CCO) who take technology companies to market traction, with an AI-first approach to go-to-market and operations.",
+        "slogan": "Interim executive leaders who take technology companies to market traction.",
         "telephone": b["phone_e164"],
         "email": b["email"],
         "address": {
@@ -166,8 +190,93 @@ def org_jsonld():
         },
         "openingHours": "Mo-Fr 08:00-17:00",
         "areaServed": "US",
+        "knowsAbout": ["Interim executive leadership", "Interim CMO", "Interim COO", "Interim CCO",
+                       "Market traction", "Beachhead market segment", "Go-to-market strategy",
+                       "AI-first go-to-market", "Commercial operations", "Technology start-ups"],
     }
-    return '<script type="application/ld+json">' + json.dumps(data, indent=1) + "</script>"
+
+
+def framework_node():
+    return {
+        "@type": "DefinedTermSet",
+        "@id": FRAMEWORK_ID,
+        "name": "The Milestones to Market Traction",
+        "description": "Moreland Associates' six-stage model of how a technology company progresses from a working product to a dominant position in one market segment.",
+        "url": SITE_URL + "/market-traction/",
+        "creator": {"@id": ORG_ID},
+        "hasDefinedTerm": [
+            {"@type": "DefinedTerm", "@id": SITE_URL + f"/market-traction/stages/{st['slug']}/#term",
+             "name": st["name"], "termCode": str(i), "description": st["description"],
+             "url": SITE_URL + f"/market-traction/stages/{st['slug']}/"}
+            for i, st in enumerate(STAGES, 1)
+        ],
+    }
+
+
+def breadcrumb_node(path):
+    trail, cur = ["/"], "/"
+    for part in path.strip("/").split("/"):
+        if not part:
+            continue
+        cur += part + "/"
+        trail.append(cur)
+    stage_names = {f"/market-traction/stages/{st['slug']}/": st["name"] for st in STAGES}
+    items = []
+    for p in trail:
+        name = CRUMBS.get(p) or stage_names.get(p)
+        if name:
+            items.append({"@type": "ListItem", "position": len(items) + 1, "name": name, "item": SITE_URL + p})
+    return {"@type": "BreadcrumbList", "@id": SITE_URL + path + "#breadcrumb", "itemListElement": items}
+
+
+def page_jsonld(meta, path, title):
+    """Structured data for a page: always the WebPage (+ breadcrumbs), plus page-specific nodes."""
+    if path == "/404":
+        return ""
+    page_type = {"/about/": "AboutPage", "/contact/": "ContactPage"}.get(path, "WebPage")
+    page = {"@type": page_type, "@id": SITE_URL + path + "#webpage", "url": SITE_URL + path,
+            "name": title, "description": meta["description"], "inLanguage": "en-US",
+            "isPartOf": {"@id": SITE_ID}, "about": {"@id": ORG_ID}}
+    graph = [page]
+    if path != "/":
+        graph.append(breadcrumb_node(path))
+        page["breadcrumb"] = {"@id": SITE_URL + path + "#breadcrumb"}
+    if path == "/":
+        graph += [org_node(), {"@type": "WebSite", "@id": SITE_ID, "url": SITE_URL + "/",
+                               "name": "Moreland Associates", "publisher": {"@id": ORG_ID}, "inLanguage": "en-US"}]
+    if path == "/services/interim-executive/":
+        graph.append({
+            "@type": "Service", "@id": SITE_URL + path + "#service",
+            "name": "Interim executive leadership", "serviceType": "Interim executive services",
+            "description": "Full-time interim CMO, COO and CCO leadership for technology companies, with an AI-first approach to go-to-market, operations and commercial operations. Interim, not fractional.",
+            "provider": {"@id": ORG_ID}, "areaServed": "US",
+            "audience": {"@type": "BusinessAudience", "audienceType": "Technology companies, founders, CEOs, boards and venture capital partners"},
+            "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Interim executive roles", "itemListElement": [
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": n, "description": d}} for n, d in ROLES]},
+        })
+    if path in ("/market-traction/", "/market-traction/stages/"):
+        graph.append(framework_node())
+        page["mainEntity"] = {"@id": FRAMEWORK_ID}
+    if path == "/market-traction/":
+        graph += [
+            {"@type": "DefinedTerm", "name": "Market traction",
+             "description": "A company has achieved market traction when its product is being predictably sold to buyers in the same market segment, giving it a dominant position (a beachhead) in that segment.",
+             "url": SITE_URL + "/market-traction/"},
+            {"@type": "DefinedTerm", "name": "Beachhead",
+             "description": "A defensible, dominant position in one market segment: not necessarily a majority share, but bigger than anyone else in that segment.",
+             "url": SITE_URL + "/market-traction/#momentum"},
+        ]
+    stage = next((st for st in STAGES if path == f"/market-traction/stages/{st['slug']}/"), None)
+    if stage:
+        page["mainEntity"] = {"@id": SITE_URL + path + "#term"}
+        graph.append({"@type": "DefinedTerm", "@id": SITE_URL + path + "#term", "name": stage["name"],
+                      "description": stage["description"], "url": SITE_URL + path,
+                      "inDefinedTermSet": {"@id": FRAMEWORK_ID}})
+    if meta.get("faq"):
+        graph.append({"@type": "FAQPage", "@id": SITE_URL + path + "#faq", "mainEntity": [
+            {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in meta["faq"]]})
+    data = {"@context": "https://schema.org", "@graph": graph}
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "</script>"
 
 
 def layout(meta, body, path):
@@ -176,7 +285,9 @@ def layout(meta, body, path):
     og_image = SITE_URL + "/assets/img/" + meta.get("og_image", "share-card.png")
     # The preview copy on github.io must never be indexed in place of the real site.
     robots = '<meta name="robots" content="noindex">' if meta.get("noindex") or not PRODUCTION else ""
-    jsonld = org_jsonld() if path == "/" else ""
+    jsonld = page_jsonld(meta, path, title)
+    hero = re.search(r"class=\"hero\" style=\"background-image: url\('([^']+)'\)", body)
+    hero_preload = f'<link rel="preload" as="image" href="{hero.group(1)}" fetchpriority="high">' if hero else ""
     ga = f"""<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','{GA_ID}');</script>""" if PRODUCTION else ""
     b = BUSINESS
@@ -203,6 +314,7 @@ def layout(meta, body, path):
 <link rel="preload" href="{url('/assets/fonts/jost.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{url('/assets/fonts/mulish.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{url('/assets/css/site.css')}">
+{hero_preload}
 {jsonld}
 {ga}
 </head>
@@ -444,7 +556,8 @@ def stage_pages():
         pager += f'<a href="{url("/market-traction/stages/" + next_s["slug"] + "/")}">{esc(next_s["name"])} →</a>' if next_s else "<span></span>"
         pager += "</nav>"
         yield ({
-            "title": f'{s["name"]}: Stage {ORDINALS[i].title()} of Market Traction',
+            "title": f'{s["name"]}: Market Traction Stage {i + 1} | Moreland',
+            "exact_title": True,
             "description": s["description"],
         }, f"""<section class="section"><div class="wrap with-sidebar">
   {stage_sidebar(s['slug'])}
@@ -505,7 +618,58 @@ def main():
     )
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
+    (OUT / "llms.txt").write_text(llms_txt(), encoding="utf-8")
+    # GitHub Pages custom domain: only in the live build (it would redirect the github.io preview)
+    cname = OUT / "CNAME"
+    if PRODUCTION:
+        cname.write_text("www.morelandassoc.com\n", encoding="utf-8")
+    elif cname.exists():
+        cname.unlink()
     print(f"Built {len(pages)} pages and {len(REDIRECTS)} redirects ({'production' if PRODUCTION else 'preview'}, base='{BASE}')")
+
+
+def llms_txt():
+    """Plain-language site summary for AI assistants (llmstxt.org convention)."""
+    b = BUSINESS
+    stages = "\n".join(f"{i}. [{st['name']}]({SITE_URL}/market-traction/stages/{st['slug']}/): {st['description']}"
+                        for i, st in enumerate(STAGES, 1))
+    roles = "\n".join(f"- **{n}:** {d}" for n, d in ROLES)
+    return f"""# Moreland Associates
+
+> Moreland Associates provides interim executive leaders (interim CMO, COO and CCO) who take technology companies to market traction, with an AI-first approach to go-to-market and operations. Based in {b['city']}, California, serving companies across the US.
+
+## Interim executive leadership
+
+Every company's road to market traction runs through a series of milestones. When the next one calls for a different leader than the one a company has, or one it doesn't have yet, Moreland's interim executives step in. They lead from the inside, setting the strategy, executing it, and building the team and systems that keep delivering after the engagement ends.
+
+{roles}
+
+**Interim, not fractional.** CMO, COO and CCO are cross-functional roles at the centre of the business. Part-time leadership in these seats slows everyone down; fractional works well for finance or IT, but the roles that run the business need someone in the seat.
+
+**When companies bring in an interim executive:** after a pivot or when reaching a milestone; once the beachhead segment is chosen and the company needs someone to lead now and help hire the permanent leader; when go-to-market needs rebuilding, AI-first; when founders aren't sure what the role should look like; or when help is needed immediately rather than after a long search.
+
+## The Milestones to Market Traction
+
+Moreland's six-stage model of how a technology company progresses from a working product to a dominant position (a beachhead) in one market segment. A company has market traction when its product is being predictably sold to buyers in the same segment.
+
+{stages}
+
+Momentum is the inflection point, where a company chooses its beachhead segment. Moreland's guidance: make competitive differentiation the first criterion; test candidate segments by trying to achieve repeat sales; and choose only after at least two (ideally three or four) segments have been tested.
+
+## Pages
+
+- [Home]({SITE_URL}/)
+- [Interim Executive services]({SITE_URL}/services/interim-executive/)
+- [What is market traction?]({SITE_URL}/market-traction/)
+- [The six stages]({SITE_URL}/market-traction/stages/)
+- [Market Traction Test]({SITE_URL}/market-traction/test/): six yes/no questions that place a company on the milestones
+- [About Moreland Associates]({SITE_URL}/about/)
+- [Contact]({SITE_URL}/contact/)
+
+## Contact
+
+{b['phone']} · {b['email']} · {b['street']}, {b['city']}, {b['region']} {b['postal']}
+"""
 
 
 if __name__ == "__main__":
