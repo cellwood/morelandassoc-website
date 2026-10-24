@@ -86,7 +86,7 @@ FORMS = {
     # kind: (phone required, message required, message hint, submit subject)
     "contact": (False, False, "", "Website contact form"),
     "about": (False, True, "Anything we should know before we get in touch?", "Website enquiry (About page)"),
-    "get-started": (True, False, "Any information we should know before we contact you?", "Get Started request"),
+    "get-started": (False, False, "Any information we should know before we contact you?", "Get Started request"),
     "field-events": (False, True, "Any additional information we should know before we give you a call?", "Field Events enquiry"),
 }
 
