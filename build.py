@@ -594,11 +594,12 @@ STAGES = json.loads((ROOT / "src" / "stages.json").read_text(encoding="utf-8"))
 
 
 def redirect_html(target):
+    # GitHub Pages can't send 301s. Google treats an instant meta refresh as a permanent redirect;
+    # the canonical backs it up. No noindex: it would conflict with the canonical.
     full = BASE + target
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>Moved | Moreland Associates</title>
 <link rel="canonical" href="{SITE_URL}{target}">
-<meta name="robots" content="noindex">
 <meta http-equiv="refresh" content="0; url={full}">
 <script>location.replace({json.dumps(full)} + location.hash);</script>
 </head><body><p>This page has moved to <a href="{full}">{SITE_URL}{target}</a>.</p></body></html>
