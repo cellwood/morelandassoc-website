@@ -192,6 +192,8 @@ def org_node():
         },
         "openingHours": "Mo-Fr 08:00-17:00",
         "areaServed": "US",
+        # Profiles elsewhere that describe the same company, so search and AI tools link them as one entity
+        "sameAs": ["https://www.linkedin.com/company/104217/"],
         "knowsAbout": ["Interim executive leadership", "Interim CMO", "Interim COO", "Interim CCO",
                        "Market traction", "Beachhead market segment", "Go-to-market strategy",
                        "AI-first go-to-market", "Commercial operations", "Technology start-ups"],
