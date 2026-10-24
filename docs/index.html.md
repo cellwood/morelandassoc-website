@@ -28,7 +28,7 @@ Lead the whole commercial engine, from marketing through sales, onboarding and c
 
 ### Why interim, not fractional
 
-Roles like CMO, COO and CCO sit at the centre of the business: information flows in from the market, out from product and engineering, and up to the board and investors. Part-time leadership in these seats slows everyone down. Fractional works well for finance or IT. For the roles that run the business, you need someone in the seat.
+Roles like CMO, COO and CCO sit at the center of the business: information flows in from the market, out from product and engineering, and up to the board and investors. Part-time leadership in these seats slows everyone down. Fractional works well for finance or IT. For the roles that run the business, you need someone in the seat.
 
 ### When to bring in an interim executive
 

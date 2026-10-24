@@ -160,6 +160,7 @@ CRUMBS = {
     "/about/": "About",
     "/contact/": "Contact",
     "/get-started/": "Get Started",
+    "/insights/": "Insights",
 }
 
 ROLES = [
@@ -277,6 +278,15 @@ def page_jsonld(meta, path, title):
         graph.append({"@type": "DefinedTerm", "@id": SITE_URL + path + "#term", "name": stage["name"],
                       "description": stage["description"], "url": SITE_URL + path,
                       "inDefinedTermSet": {"@id": FRAMEWORK_ID}})
+    if meta.get("article"):
+        art = meta["article"]
+        page["mainEntity"] = {"@id": SITE_URL + path + "#article"}
+        graph.append({"@type": "Article", "@id": SITE_URL + path + "#article", "headline": meta.get("og_title", title),
+                      "description": meta["description"], "url": SITE_URL + path, "inLanguage": "en-US",
+                      "datePublished": art["published"], "dateModified": art.get("modified", art["published"]),
+                      "author": {"@id": ORG_ID}, "publisher": {"@id": ORG_ID},
+                      "image": SITE_URL + "/assets/img/" + share_card(path),
+                      "mainEntityOfPage": {"@id": SITE_URL + path + "#webpage"}})
     if meta.get("faq"):
         graph.append({"@type": "FAQPage", "@id": SITE_URL + path + "#faq", "mainEntity": [
             {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in meta["faq"]]})
@@ -366,6 +376,7 @@ def layout(meta, body, path):
       <h2>Explore</h2>
       <ul>
         <li><a href="{url('/services/interim-executive/')}">Interim Executive</a></li>
+        <li><a href="{url('/insights/')}">Insights</a></li>
         <li><a href="{url('/market-traction/test/')}">Market Traction Test</a></li>
         <li><a href="{url('/about/')}">About Moreland</a></li>
         <li><a href="{url('/contact/')}">Contact</a></li>
@@ -614,6 +625,8 @@ def main():
         if not m:
             sys.exit(f"{src}: missing metadata comment")
         meta = json.loads(m.group(1))
+        if meta.get("crumb"):
+            CRUMBS[meta["path"]] = meta["crumb"]
         sources.append((meta, text[m.end():], meta["path"]))
     sources.extend(stage_pages())
 
@@ -803,9 +816,12 @@ Moreland Associates · {b['phone']} · {b['email']} · {b['street']}, {b['city']
 """
 
 
+INSIGHTS = ["/insights/interim-vs-fractional-cmo/", "/insights/how-long-interim-executive-engagement/",
+            "/insights/when-to-hire-interim-coo/", "/insights/what-does-a-cco-do/", "/insights/ai-first-go-to-market/"]
+
 LLMS_PAGES = ["/", "/services/interim-executive/", "/about/", "/market-traction/", "/market-traction/stages/",
               *[f"/market-traction/stages/{st}/" for st in ("eureka", "kaa-ching", "two-thumbs-up", "momentum", "building-buzz", "market-traction")],
-              "/market-traction/test/", "/contact/", "/get-started/"]
+              "/insights/", *INSIGHTS, "/market-traction/test/", "/contact/", "/get-started/"]
 
 
 def faq_html(faq):
@@ -832,7 +848,7 @@ Every company's road to market traction runs through a series of milestones. Whe
 
 {roles}
 
-**Interim, not fractional.** CMO, COO and CCO are cross-functional roles at the centre of the business. Part-time leadership in these seats slows everyone down; fractional works well for finance or IT, but the roles that run the business need someone in the seat.
+**Interim, not fractional.** CMO, COO and CCO are cross-functional roles at the center of the business. Part-time leadership in these seats slows everyone down; fractional works well for finance or IT, but the roles that run the business need someone in the seat.
 
 **When companies bring in an interim executive:** after a pivot or when reaching a milestone; once the beachhead segment is chosen and the company needs someone to lead now and help hire the permanent leader; when go-to-market needs rebuilding, AI-first; when founders aren't sure what the role should look like; or when help is needed immediately rather than after a long search.
 
@@ -855,6 +871,16 @@ Each page has a Markdown version at the same address plus `index.html.md`; [llms
 - [The six stages]({SITE_URL}/market-traction/stages/index.html.md)
 - [Market Traction Test]({SITE_URL}/market-traction/test/index.html.md): six yes/no questions that place a company on the milestones
 - [Contact]({SITE_URL}/contact/index.html.md)
+
+## Insights
+
+Direct answers to common questions about interim executive leadership.
+
+- [Interim CMO vs fractional CMO: which does your company need?]({SITE_URL}/insights/interim-vs-fractional-cmo/index.html.md)
+- [How long does an interim executive engagement last?]({SITE_URL}/insights/how-long-interim-executive-engagement/index.html.md): typically four to nine months
+- [When should a start-up hire an interim COO?]({SITE_URL}/insights/when-to-hire-interim-coo/index.html.md)
+- [What does a Chief Commercial Officer do, and when do you need one?]({SITE_URL}/insights/what-does-a-cco-do/index.html.md)
+- [What is an AI-first go-to-market?]({SITE_URL}/insights/ai-first-go-to-market/index.html.md)
 
 ## Contact
 

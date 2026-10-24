@@ -121,6 +121,12 @@ def main():
          "What marketing and sales need at each milestone", tiles)
     card("market-traction-test", "Market Traction Test", "Where is your company on the road to market traction?",
          "Six questions. 30 seconds.", tiles)
+    card("insights", "Insights", "Straight answers on interim executive leadership", "Interim CMO, COO and CCO", row, (0.3, 0.5))
+    card("insights-interim-vs-fractional-cmo", "Insights", "Interim CMO vs fractional CMO: which do you need?", "", row, (0.45, 0.5))
+    card("insights-how-long-interim-executive-engagement", "Insights", "How long does an interim executive engagement last?", "", row, (0.6, 0.5))
+    card("insights-when-to-hire-interim-coo", "Insights", "When should a start-up hire an interim COO?", "", row, (0.4, 0.5))
+    card("insights-what-does-a-cco-do", "Insights", "What does a Chief Commercial Officer do?", "", row, (0.7, 0.5))
+    card("insights-ai-first-go-to-market", "Insights", "What is an AI-first go-to-market?", "", row, (0.55, 0.5))
     subs = ["Your product works and is ready for customers.",
             "First revenue: your cash register rings.",
             "Credible reference customers your buyers recognize.",

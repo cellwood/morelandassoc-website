@@ -26,7 +26,7 @@ If necessary, we can field an entire team.
 
 ## Why interim, not fractional
 
-Roles like CMO, COO and CCO sit at the centre of the business: information flows in from the market, out from product and engineering, and up to the board and investors. Part-time leadership in these seats slows everyone down. Fractional works well for finance or IT. For the roles that run the business, you need someone in the seat.
+Roles like CMO, COO and CCO sit at the center of the business: information flows in from the market, out from product and engineering, and up to the board and investors. Part-time leadership in these seats slows everyone down. Fractional works well for finance or IT. For the roles that run the business, you need someone in the seat.
 
 Our interim executives have experience in everything from venture-funded technology start-ups to large enterprises. Our forte is parachuting into an assignment, seamlessly becoming a member of the team and making an immediate impact on the needs of the company.
 
@@ -49,6 +49,14 @@ Companies elect to use an interim executive in situations like these:
 
 When big market shifts occur, such as a global economic downturn or the implosion of a market sector, the need to find a new successful market is imperative. An interim executive is a great option for quickly bringing in the seasoned management talent you need until you are ready to add to your permanent staff.
 
+## Further reading
+
+- [Interim CMO vs fractional CMO: which does your company need?](https://www.morelandassoc.com/insights/interim-vs-fractional-cmo/)
+- [How long does an interim executive engagement last?](https://www.morelandassoc.com/insights/how-long-interim-executive-engagement/)
+- [When should a start-up hire an interim COO?](https://www.morelandassoc.com/insights/when-to-hire-interim-coo/)
+- [What does a Chief Commercial Officer do?](https://www.morelandassoc.com/insights/what-does-a-cco-do/)
+- [What is an AI-first go-to-market?](https://www.morelandassoc.com/insights/ai-first-go-to-market/)
+
 ## Frequently asked questions
 
 ### What is an interim executive?
@@ -57,7 +65,7 @@ A senior leader who steps into a role such as CMO, COO or CCO for a defined peri
 
 ### What's the difference between an interim and a fractional executive?
 
-An interim executive works in the role full time; a fractional executive splits time across several companies. Fractional works well for finance or IT. Cross-functional roles like CMO, COO and CCO sit at the centre of the business, and part-time leadership in those seats slows everyone down.
+An interim executive works in the role full time; a fractional executive splits time across several companies. Fractional works well for finance or IT. Cross-functional roles like CMO, COO and CCO sit at the center of the business, and part-time leadership in those seats slows everyone down.
 
 ### Which interim roles does Moreland provide?
 
