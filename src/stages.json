@@ -29,7 +29,11 @@
     "description": "Stage four of market traction: the whole company is focused on one segment with a predictable pipeline. Next comes building buzz.",
     "headline": "The entire company is focused on dominating the selected market segment.",
     "body": "You have a sales pipeline and are getting better at identifying, selling, and closing sales with the target buyers.",
-    "next": "The next challenge is to build a broader awareness, and elevate your visibility so that the sale begins before your reps contact the target buyer."
+    "next": "The next challenge is to build a broader awareness, and elevate your visibility so that the sale begins before your reps contact the target buyer.",
+    "deep_dive": {
+      "text": "Read more: how to choose your beachhead segment",
+      "href": "/market-traction/#momentum"
+    }
   },
   {
     "slug": "building-buzz",

@@ -222,7 +222,7 @@ def layout(meta, body, path):
   <div class="wrap">
     <div>
       <h2>Moreland Associates</h2>
-      <p>Seasoned executive entrepreneurs helping technology companies build market traction.</p>
+      <p>Interim executive leaders who take technology companies to market traction.</p>
     </div>
     <div>
       <h2>Contact</h2>
@@ -394,6 +394,8 @@ ORDINALS = ["one", "two", "three", "four", "five", "six"]
 def stage_article(i, s, heading_tag, link_title, graphic=True):
     name = f'<a href="{url("/market-traction/stages/" + s["slug"] + "/")}">{esc(s["name"])}</a>' if link_title else esc(s["name"])
     nxt = f'<h3>What’s next?</h3><p>{s["next"]}</p>' if s.get("next") else ""
+    if s.get("deep_dive"):
+        nxt += f'<p><a href="{url(s["deep_dive"]["href"])}">{esc(s["deep_dive"]["text"])}</a></p>'
     fig = f'<figure class="stage-graphic">{milestones_svg(s["slug"], uid="ms-" + s["slug"])}</figure>' if graphic else ""
     return f"""<article class="stage" id="{s['slug']}">
   <p class="eyebrow">Stage {ORDINALS[i]} of six</p>
