@@ -358,3 +358,16 @@ blockquote footer { font-style: normal; font-size: 0.92rem; color: var(--muted);
   .milestones .ms-title { font-size: 66px; }
   .milestones .ms-desc, .milestones .ms-callout, .milestones .ms-services { display: none; }
 }
+
+/* Home: interim leadership section */
+.section-intro { max-width: var(--measure); margin-bottom: 2rem; }
+.cards.roles .card { background: var(--white); border-radius: var(--radius); padding: 1.3rem 1.4rem; border-top: 3px solid var(--moreland-blue); }
+.cards.roles .card h3 { font-size: 1.2rem; }
+.cards.roles .card h3 a { text-decoration: none; }
+.split { display: grid; gap: clamp(1.5rem, 5vw, 4rem); grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); margin-top: clamp(2.5rem, 6vw, 3.5rem); }
+.split h3 { font-size: 1.25rem; }
+.split ul { padding-left: 1.2em; }
+.split li { margin-bottom: 0.45em; }
+.cards.roles { grid-template-columns: 1fr; }
+@media (min-width: 36rem) { .cards.roles { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64rem) { .cards.roles { grid-template-columns: repeat(4, 1fr); } }
