@@ -597,7 +597,7 @@ def main():
 
     pages = []
     for meta, raw, path in sources:
-        body = render_tokens(raw, path)
+        body = render_tokens(raw, path).replace("{{faq}}", faq_html(meta.get("faq", [])))
         dest = OUT / "404.html" if path == "/404" else OUT / path.strip("/") / "index.html"
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(layout(meta, body, path), encoding="utf-8")
@@ -626,6 +626,14 @@ def main():
     elif cname.exists():
         cname.unlink()
     print(f"Built {len(pages)} pages and {len(REDIRECTS)} redirects ({'production' if PRODUCTION else 'preview'}, base='{BASE}')")
+
+
+def faq_html(faq):
+    """Visible FAQ section; the same questions feed the FAQPage structured data."""
+    if not faq:
+        return ""
+    items = "".join(f"<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>" for q, a in faq)
+    return f'<section class="faq" aria-labelledby="faq-title"><h2 id="faq-title">Frequently asked questions</h2>{items}</section>'
 
 
 def llms_txt():
