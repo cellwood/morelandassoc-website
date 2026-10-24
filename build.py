@@ -41,13 +41,7 @@ BUSINESS = {
 
 NAV = [
     ("Home", "/"),
-    ("Services", [
-        ("Interim Executive", "/services/interim-executive/"),
-        ("Product Marketing", "/services/product-marketing/"),
-        ("Corporate Marketing", "/services/corporate-marketing/"),
-        ("Revenue Lifecycle", "/services/revenue-lifecycle/"),
-        ("Field Events", "/services/field-events/"),
-    ]),
+    ("Interim Executive", "/services/interim-executive/"),
     ("Market Traction", [
         ("About Market Traction", "/market-traction/"),
         ("Take the Test", "/market-traction/test/"),
@@ -61,9 +55,9 @@ NAV = [
 REDIRECTS = {
     "home": "/",
     "new-page": "/market-traction/",
-    "new-page-1": "/services/corporate-marketing/",
-    "new-page-3": "/services/revenue-lifecycle/",
-    "new-page-4": "/services/product-marketing/",
+    "new-page-1": "/services/interim-executive/",
+    "new-page-3": "/services/interim-executive/",
+    "new-page-4": "/services/interim-executive/",
     "interim-executive": "/services/interim-executive/",
     "moreland-services": "/services/interim-executive/",
     "market-traction-test": "/market-traction/test/",
@@ -78,7 +72,12 @@ REDIRECTS = {
     "pipeline-acceleration-signup": "/get-started/?topic=pipeline-acceleration",
     "revenue-lifecycle-signup": "/get-started/?topic=revenue-lifecycle",
     "interim-executive-information": "/get-started/?topic=interim-executive",
-    "event-in-a-box": "/services/field-events/",
+    "event-in-a-box": "/services/interim-executive/",
+    # Service pages retired in October 2026 (copy archived in the playbook)
+    "services/product-marketing/": "/services/interim-executive/",
+    "services/corporate-marketing/": "/services/interim-executive/",
+    "services/revenue-lifecycle/": "/services/interim-executive/",
+    "services/field-events/": "/services/interim-executive/",
 }
 
 FORMS = {
@@ -154,7 +153,7 @@ def org_jsonld():
         "url": SITE_URL + "/",
         "logo": SITE_URL + "/assets/img/moreland-logo.png",
         "image": SITE_URL + "/assets/img/share-card.png",
-        "description": "Moreland Associates is a consulting firm of seasoned executives who help technology companies achieve market traction, with interim executive, product marketing, corporate marketing and revenue lifecycle services.",
+        "description": "Moreland Associates is a consulting firm of seasoned executives who help technology companies achieve market traction, serving as interim CMO, COO and CCO with an AI-first approach to go-to-market and operations.",
         "telephone": b["phone_e164"],
         "email": b["email"],
         "address": {
@@ -236,7 +235,7 @@ def layout(meta, body, path):
     <div>
       <h2>Explore</h2>
       <ul>
-        <li><a href="{url('/services/interim-executive/')}">Services</a></li>
+        <li><a href="{url('/services/interim-executive/')}">Interim Executive</a></li>
         <li><a href="{url('/market-traction/test/')}">Market Traction Test</a></li>
         <li><a href="{url('/about/')}">About Moreland</a></li>
         <li><a href="{url('/contact/')}">Contact</a></li>
@@ -252,7 +251,6 @@ def layout(meta, body, path):
 
 
 SIDEBARS = {
-    "services": ("Services", NAV[1][1]),
     "market-traction": ("Market Traction", NAV[2][1]),
 }
 
@@ -492,7 +490,10 @@ def main():
             pages.append(path)
 
     for old, new in REDIRECTS.items():
-        (OUT / f"{old}.html").write_text(redirect_html(new), encoding="utf-8")
+        # "folder/" keys become folder/index.html so the trailing-slash address keeps working
+        dest = OUT / old / "index.html" if old.endswith("/") else OUT / f"{old}.html"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(redirect_html(new), encoding="utf-8")
 
     today = date.today().isoformat()
     entries = "".join(f"  <url><loc>{SITE_URL}{p}</loc><lastmod>{today}</lastmod></url>\n" for p in sorted(pages))
