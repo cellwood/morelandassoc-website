@@ -40,14 +40,6 @@
       title: "Market Traction",
       lead: "We are here to help you reach the next milestone in your journey to achieve market traction and build your beachhead. Let us know the best way to reach you and we’ll be in touch right away."
     },
-    "pipeline-acceleration": {
-      title: "Pipeline Acceleration",
-      lead: "Let us know the best way to reach you and we’ll be in touch right away to talk about accelerating the deals in your pipeline."
-    },
-    "revenue-lifecycle": {
-      title: "Revenue Lifecycle",
-      lead: "Let us know the best way to reach you and we’ll be in touch right away to talk about aligning marketing to your buyer’s cycle."
-    },
     "interim-executive": {
       title: "Interim Executive",
       lead: "Let us know the best way to reach you and we’ll be in touch right away to talk about the interim leadership your company needs."
@@ -56,6 +48,8 @@
   var topicHead = document.querySelector("[data-topic-title]");
   if (topicHead) {
     var key = new URLSearchParams(location.search).get("topic");
+    // Topics from retired services now go to the interim executive version
+    if (key === "pipeline-acceleration" || key === "revenue-lifecycle") key = "interim-executive";
     var t = TOPICS[key];
     if (t) {
       topicHead.textContent = t.title;

@@ -71,8 +71,8 @@ REDIRECTS = {
     "building-buzz": "/market-traction/stages/building-buzz/",
     "market-traction-completed": "/market-traction/stages/market-traction/",
     "market-traction-signup": "/get-started/?topic=market-traction",
-    "pipeline-acceleration-signup": "/get-started/?topic=pipeline-acceleration",
-    "revenue-lifecycle-signup": "/get-started/?topic=revenue-lifecycle",
+    "pipeline-acceleration-signup": "/get-started/?topic=interim-executive",
+    "revenue-lifecycle-signup": "/get-started/?topic=interim-executive",
     "interim-executive-information": "/get-started/?topic=interim-executive",
     "event-in-a-box": "/services/interim-executive/",
     # Service pages retired in October 2026 (copy archived in the playbook)
