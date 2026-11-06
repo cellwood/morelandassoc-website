@@ -14,7 +14,14 @@ Updated October 2026
 
 ## The difference at a glance
 
-Interim CMOFractional CMO TimeFull time, in your companyPart time, often one or two days a week FocusYour company onlyShared across several clients LengthSet by a milestone, often four to nine monthsOpen-ended retainer Role on the leadership teamA full member: in the meetings, owning the numbersAn advisor who drops in Best forLeading change: a launch, a pivot, a new segment, rebuilding go-to-marketSteady oversight of a plan that already works The permanent CMODefines the role and helps you hireUsually not involved
+|   | Interim CMO | Fractional CMO |
+|---|---|---|
+| Time | Full time, in your company | Part time, often one or two days a week |
+| Focus | Your company only | Shared across several clients |
+| Length | Set by a milestone, often four to nine months | Open-ended retainer |
+| Role on the leadership team | A full member: in the meetings, owning the numbers | An advisor who drops in |
+| Best for | Leading change: a launch, a pivot, a new segment, rebuilding go-to-market | Steady oversight of a plan that already works |
+| The permanent CMO | Defines the role and helps you hire | Usually not involved |
 
 ## Why the CMO seat is hard to fill part time
 

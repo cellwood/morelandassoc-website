@@ -701,6 +701,7 @@ class MarkdownWriter(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.page_url, self.blocks, self.buf = page_url, [], []
         self.skip, self.lists, self.hrefs, self.quote, self.prefix, self.wrap = 0, [], [], 0, "", ""
+        self.table = None  # rows of cell text while inside a <table>
 
     def flush(self):
         text = re.sub(r"[ \t]+", " ", "".join(self.buf)).strip()
@@ -736,6 +737,21 @@ class MarkdownWriter(HTMLParser):
             self.flush()
             self.blocks.append(("p", f"_A contact form appears here on the web page ({self.page_url}). You can also email info@morelandassoc.com or call (510) 833-7308._"))
             self.skip = 1
+            return
+        if tag == "table":
+            self.flush()
+            self.table = []
+            return
+        if self.table is not None:
+            if tag == "tr":
+                self.table.append([])
+            elif tag in ("th", "td"):
+                self.buf = []
+            elif tag == "a":
+                self.hrefs.append(a.get("href", ""))
+                self.buf.append("[")
+            elif tag in ("strong", "b"):
+                self.buf.append("**")
             return
         if tag in self.BLOCKS:
             self.flush()
@@ -776,6 +792,21 @@ class MarkdownWriter(HTMLParser):
     def handle_endtag(self, tag):
         if self.skip:
             self.skip -= 1
+            return
+        if self.table is not None and tag in ("th", "td", "table"):
+            if tag == "table":
+                rows = [r for r in self.table if r]
+                if rows:
+                    width = max(len(r) for r in rows)
+                    rows = [r + [""] * (width - len(r)) for r in rows]
+                    md = ["| " + " | ".join(c or " " for c in rows[0]) + " |", "|" + "---|" * width]
+                    md += ["| " + " | ".join(r) + " |" for r in rows[1:]]
+                    self.blocks.append(("table", "\n".join(md)))
+                self.table, self.buf = None, []
+            elif self.table:
+                text = re.sub(r"\s+", " ", "".join(self.buf)).strip().replace("|", "\\|")
+                self.table[-1].append(text)
+                self.buf = []
             return
         if tag == "a" and self.hrefs:
             href = self.hrefs.pop()

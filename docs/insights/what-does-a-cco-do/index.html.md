@@ -22,7 +22,12 @@ Updated October 2026
 
 ## CCO, CMO, CRO and head of sales
 
-RoleUsually owns Chief Commercial OfficerThe whole commercial engine: marketing, sales, onboarding and customer success Chief Marketing OfficerThe market: positioning, messaging, awareness and pipeline Chief Revenue OfficerRevenue targets, usually centered on the sales organization Head of salesThe sales team, deals and forecast
+| Role | Usually owns |
+|---|---|
+| Chief Commercial Officer | The whole commercial engine: marketing, sales, onboarding and customer success |
+| Chief Marketing Officer | The market: positioning, messaging, awareness and pipeline |
+| Chief Revenue Officer | Revenue targets, usually centered on the sales organization |
+| Head of sales | The sales team, deals and forecast |
 
 Titles vary from company to company. What matters is whether someone owns the revenue engine end to end.
 
